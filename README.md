@@ -61,15 +61,20 @@ space-portfolio/
     |-- index.ts
   |- constants/
     |-- index.ts
+  |- deploy/
+    |-- docker-compose.yml
   |- lib/
     |-- motion.ts
     |-- utils.ts
   |- public/
+  |- .dockerignore
   |- .eslintrc.json
   |- .gitignore
+  |- Dockerfile
   |- eslint.config.mjs
   |- netlify.toml
   |- next.config.js
+  |- package-lock.json
   |- package.json
   |- pnpm-lock.yaml
   |- pnpm-workspace.yaml
