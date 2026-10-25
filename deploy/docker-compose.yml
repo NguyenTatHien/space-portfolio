@@ -9,7 +9,7 @@ services:
     networks:
       - javis-web
     labels:
-      caddy: hien.hiennguyen.io.vn
+      caddy: portfolio.hiennguyen.io.vn
       caddy.reverse_proxy: "{{upstreams 3000}}"
 
   # Cứ 60 giây hỏi GHCR xem có ảnh mới của `portfolio` không, có thì kéo về và chạy lại.
