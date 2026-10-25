@@ -1,0 +1,28 @@
+# Chạy trên VPS (đặt ở ~/portfolio). Cần proxy dùng chung `javis-proxy` và mạng `javis-web` đã có sẵn.
+#   docker compose up -d
+# Proxy tự đọc nhãn `caddy` bên dưới, xin HTTPS và chuyển tên miền về container này.
+services:
+  portfolio:
+    image: ghcr.io/nguyentathien/space-portfolio:latest
+    container_name: portfolio
+    restart: unless-stopped
+    networks:
+      - javis-web
+    labels:
+      caddy: hien.hiennguyen.io.vn
+      caddy.reverse_proxy: "{{upstreams 3000}}"
+
+  # Cứ 60 giây hỏi GHCR xem có ảnh mới của `portfolio` không, có thì kéo về và chạy lại.
+  # Chỉ theo dõi đúng container `portfolio`, không đụng tới Javis.
+  watchtower-portfolio:
+    image: ghcr.io/nicholas-fedor/watchtower:1
+    container_name: watchtower-portfolio
+    restart: unless-stopped
+    command: --interval 60 --cleanup portfolio
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+networks:
+  javis-web:
+    external: true
+    name: javis-web
