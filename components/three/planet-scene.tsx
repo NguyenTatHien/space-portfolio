@@ -1,9 +1,9 @@
 "use client";
 
-import { Float, Html, Sparkles } from "@react-three/drei";
+import { Float, Html } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
-import { Suspense, useMemo, useRef } from "react";
+import { Suspense, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 
 import { useReducedMotion } from "@/lib/use-reduced-motion";
@@ -34,7 +34,10 @@ const coreFragment = /* glsl */ `
     return 1.0 - smoothstep(0.0, widthPx, g);
   }
   void main() {
-    float fres = pow(1.0 - max(dot(vNormal, vView), 0.0), 2.4);
+    vec3 n = normalize(vNormal);
+    vec3 v = normalize(vView);
+    float ndv = clamp(dot(n, v), 0.0, 1.0);
+    float fres = pow(max(1.0 - ndv, 1e-4), 2.4);
     vec3 deep = vec3(0.02, 0.04, 0.11);
     vec3 blue = vec3(0.23, 0.51, 0.96);
     vec3 cyan = vec3(0.13, 0.83, 0.93);
@@ -53,7 +56,7 @@ const coreFragment = /* glsl */ `
     float city = step(0.985, noise) * dotMask * poleFade * (0.85 + 0.15 * sin(uTime * 0.6 + noise * 40.0));
     vec3 col = deep + blue * grid * 0.6 + cyan * band * 0.3 + vec3(0.98, 0.75, 0.14) * city * 0.55;
     col += mix(blue, cyan, fres) * fres * 1.4;
-    gl_FragColor = vec4(col, 1.0);
+    gl_FragColor = vec4(clamp(col, 0.0, 4.0), 1.0);
   }
 `;
 
@@ -61,7 +64,8 @@ const atmoFragment = /* glsl */ `
   varying vec3 vNormal;
   varying vec3 vView;
   void main() {
-    float i = pow(clamp(-dot(vNormal, vView), 0.0, 1.0), 1.5);
+    float d = clamp(-dot(normalize(vNormal), normalize(vView)), 0.0, 1.0);
+    float i = pow(max(d, 1e-4), 1.5);
     gl_FragColor = vec4(0.23, 0.55, 1.0, 1.0) * i * 1.4;
   }
 `;
@@ -149,6 +153,76 @@ function Orbit({ radius, tilt, speed, color, label, offset = 0, animate }: Orbit
   );
 }
 
+function mulberry32(seed: number) {
+  let a = seed;
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Plain point sprites with a soft round texture (no 1/distance falloff, so no Inf pixels for Bloom).
+function Dust({ animate }: { animate: boolean }) {
+  const group = useRef<THREE.Group>(null);
+  const count = 140;
+
+  const positions = useMemo(() => {
+    const rand = mulberry32(1337);
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      arr[i * 3] = (rand() - 0.5) * 9;
+      arr[i * 3 + 1] = (rand() - 0.5) * 6;
+      arr[i * 3 + 2] = (rand() - 0.5) * 6;
+    }
+    return arr;
+  }, []);
+
+  const texture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+      g.addColorStop(0, "rgba(255,255,255,1)");
+      g.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 64, 64);
+    }
+    return new THREE.CanvasTexture(canvas);
+  }, []);
+
+  useEffect(() => () => texture.dispose(), [texture]);
+
+  useFrame((state, delta) => {
+    if (!animate || !group.current) return;
+    group.current.rotation.y += delta * 0.02;
+    group.current.position.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.08;
+  });
+
+  return (
+    <group ref={group}>
+      <points>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        </bufferGeometry>
+        <pointsMaterial
+          color="#93c5fd"
+          size={0.06}
+          sizeAttenuation
+          map={texture}
+          transparent
+          opacity={0.7}
+          depthWrite={false}
+          alphaTest={0.01}
+        />
+      </points>
+    </group>
+  );
+}
+
 function Rig({ children, animate }: { children: React.ReactNode; animate: boolean }) {
   const group = useRef<THREE.Group>(null);
   useFrame((state) => {
@@ -182,7 +256,7 @@ export default function PlanetScene() {
               <Orbit radius={3.5} tilt={[1.1, -0.3, 0.3]} speed={0.3} color="#fbbf24" label="AI · RAG" offset={4} animate={animate} />
             </group>
           </Float>
-          <Sparkles count={120} scale={[9, 6, 6]} size={2.2} speed={animate ? 0.35 : 0} color="#93c5fd" opacity={0.7} />
+          <Dust animate={animate} />
         </Rig>
         <EffectComposer multisampling={4}>
           <Bloom mipmapBlur intensity={0.9} luminanceThreshold={0.6} luminanceSmoothing={0.3} radius={0.75} />
