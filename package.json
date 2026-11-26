@@ -1,6 +1,6 @@
 {
-  "name": "space-portfolio",
-  "version": "1.0.1",
+  "name": "hiennguyen-portfolio",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,66 +9,32 @@
     "lint": "eslint ."
   },
   "author": {
-    "name": "Sanidhya Kumar Verma",
-    "email": "sanidhyyy@gmail.com",
-    "url": "https://github.com/sanidhyy"
+    "name": "Nguyễn Tất Hiển",
+    "email": "tathien2003@gmail.com",
+    "url": "https://hiennguyen.io.vn"
   },
-  "description": "Welcome to my full stack Next.js 14 space portfolio.",
+  "description": "Portfolio of Nguyễn Tất Hiển, Full-stack Developer (React, Next.js, TypeScript, Laravel, NestJS, practical AI).",
   "keywords": [
-    "reactjs",
-    "nextjs",
-    "vercel",
-    "react",
-    "space-portfolio",
     "portfolio",
-    "react-icons",
-    "cn",
-    "clsx",
-    "3d-portfolio",
-    "3d-website",
-    "sonner",
-    "framer-motion",
-    "motion",
-    "animation",
-    "heroicons",
-    "next-themes",
-    "postcss",
-    "prettier",
-    "react-dom",
-    "tailwindcss",
-    "tailwindcss-animate",
-    "ui/ux",
-    "js",
-    "javascript",
+    "full-stack developer",
+    "nextjs",
+    "react",
     "typescript",
-    "eslint",
-    "html",
-    "css"
+    "laravel",
+    "nestjs",
+    "threejs"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sanidhyy/space-portfolioit"
+    "url": "https://github.com/NguyenTatHien/space-portfolio"
   },
-  "homepage": "https://github.com/sanidhyy/space-portfolio#readme",
-  "bugs": {
-    "url": "https://github.com/sanidhyy/space-portfolio/issues",
-    "email": "sanidhyyy@gmail.com"
-  },
-  "funding": [
-    {
-      "type": "patreon",
-      "url": "https://www.patreon.com/sanidhy"
-    },
-    {
-      "type": "Buy me a coffee",
-      "url": "https://www.buymeacoffee.com/sanidhy"
-    }
-  ],
+  "homepage": "https://hiennguyen.io.vn",
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.1",
+    "@react-three/postprocessing": "^3.2.2",
     "clsx": "^2.1.1",
     "framer-motion": "^14.1.0",
     "maath": "^0.10.8",
@@ -81,11 +47,11 @@
     "three": "^0.186.1"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^26",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@types/three": "^0.186.0",
-    "autoprefixer": "^10.7.0",
     "eslint": "^10.12.0",
     "eslint-config-next": "16.4.3",
     "postcss": "^8",
