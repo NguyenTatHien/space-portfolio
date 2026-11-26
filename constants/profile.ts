@@ -161,7 +161,7 @@ export const EXPERIENCE: Experience[] = [
     company: "CMC Global",
     role: { en: "Front-end Developer · Remote", vi: "Front-end Developer · Từ xa" },
     type: { en: "Scrum team of 15", vi: "Nhóm Scrum 15 người" },
-    period: { en: "Jul 2025 – Mar 2026", vi: "07/2025 – 03/2026" },
+    period: { en: "Aug 2025 – Mar 2026", vi: "08/2025 – 03/2026" },
     summary: {
       en: "Front-end work for GoNetZero, an enterprise carbon accounting platform.",
       vi: "Phát triển front-end cho GoNetZero, nền tảng kế toán carbon cho doanh nghiệp.",
