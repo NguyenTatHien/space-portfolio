@@ -180,7 +180,7 @@ export const EXPERIENCE: Experience[] = [
   },
 ];
 
-export type ProjectVisual = "ai" | "ops" | "compliance" | "learning";
+export type ProjectVisual = "ai" | "ops" | "compliance" | "learning" | "face";
 
 export type Project = {
   slug: string;
@@ -192,12 +192,34 @@ export type Project = {
   visual: ProjectVisual;
   /** Optional real screenshot in /public/projects, e.g. "/projects/hobi-portal.webp". */
   image?: string;
+  /** Optional call-to-action shown at the bottom of the card. */
+  link?: { href: string; label: T };
   summary: T;
   highlights: T[];
   stack: string[];
 };
 
 export const PROJECTS: Project[] = [
+  {
+    slug: "face-api",
+    name: "Face API",
+    subtitle: { en: "Face verification API for any app", vi: "API xác thực khuôn mặt cho mọi ứng dụng" },
+    period: { en: "Nov 2026 – now", vi: "11/2026 – nay" },
+    role: { en: "Own product · built and run solo", vi: "Sản phẩm riêng · tự xây và vận hành" },
+    production: true,
+    visual: "face",
+    link: { href: "https://face.hiennguyen.io.vn", label: { en: "Visit site & request a trial", vi: "Xem trang & liên hệ dùng thử" } },
+    summary: {
+      en: "Turned the face clock-in engine from AP Service Hub into a standalone API that other apps rent by key. It never stores photos or face vectors: each client keeps its own templates.",
+      vi: "Tách bộ chấm công khuôn mặt của AP Service Hub thành một API độc lập cho các ứng dụng khác thuê theo key. Không lưu ảnh, không lưu vector khuôn mặt: mỗi khách tự giữ mẫu của mình.",
+    },
+    highlights: [
+      { en: "Face detection, matching and a liveness score on every call (YuNet, SFace, MiniFASNet on FastAPI), servers in Vietnam", vi: "Mỗi lần gọi đều dò mặt, so khớp và chấm điểm người thật (YuNet, SFace, MiniFASNet trên FastAPI), máy chủ đặt tại Việt Nam" },
+      { en: "Multi-tenant: organisations, plans, hashed API keys, IP allowlists, quotas and rate limits, plus an admin console with TOTP login", vi: "Nhiều khách dùng chung: tổ chức, gói, API key băm, IP được phép, hạn mức và giới hạn tần suất, kèm console quản trị đăng nhập TOTP" },
+      { en: "Web SDK that guides the user's camera on-device (MediaPipe), with React and web-component wrappers, public docs and pricing", vi: "SDK web hướng dẫn quét mặt ngay trên máy người dùng (MediaPipe), có bản React và web component, tài liệu và bảng giá công khai" },
+    ],
+    stack: ["Python", "FastAPI", "OpenCV", "PostgreSQL", "Redis", "TypeScript"],
+  },
   {
     slug: "hobi-portal",
     name: "Hobi Portal",
