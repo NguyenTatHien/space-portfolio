@@ -1,6 +1,8 @@
 # Chạy trên VPS (đặt ở ~/portfolio). Cần proxy dùng chung `javis-proxy` và mạng `javis-web` đã có sẵn.
 #   docker compose up -d
-# Proxy tự đọc nhãn `caddy` bên dưới, xin HTTPS và chuyển tên miền về container này.
+# Proxy tự đọc nhãn `caddy_*` bên dưới, xin HTTPS và chuyển tên miền về container này.
+# Tên miền chính: hiennguyen.io.vn. Tên miền phụ cũ portfolio.hiennguyen.io.vn chuyển hướng 301 về tên miền chính.
+# Lưu ý: tên miền mới đi qua OneShield thì tạm tắt Bảo vệ cho tới khi Caddy xin xong chứng chỉ, rồi mới bật lại.
 services:
   portfolio:
     image: ghcr.io/nguyentathien/space-portfolio:latest
@@ -9,8 +11,10 @@ services:
     networks:
       - javis-web
     labels:
-      caddy: portfolio.hiennguyen.io.vn
-      caddy.reverse_proxy: "{{upstreams 3000}}"
+      caddy_0: hiennguyen.io.vn
+      caddy_0.reverse_proxy: "{{upstreams 3000}}"
+      caddy_1: portfolio.hiennguyen.io.vn
+      caddy_1.redir: "https://hiennguyen.io.vn{uri} permanent"
 
   # Cứ 60 giây hỏi GHCR xem có ảnh mới của `portfolio` không, có thì kéo về và chạy lại.
   # Chỉ theo dõi đúng container `portfolio`, không đụng tới Javis.
