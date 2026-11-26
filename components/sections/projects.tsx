@@ -85,6 +85,17 @@ function ProjectCard({ p, large }: { p: Project; large?: boolean }) {
               <TechChip key={s} name={s} />
             ))}
           </div>
+          {p.link ? (
+            <a
+              href={p.link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative z-20 mt-5 inline-flex w-fit items-center gap-2 border border-accent-2 px-4 py-2.5 font-mono text-xs uppercase tracking-wider text-accent-2 transition-all hover:bg-accent-2/10 hover:shadow-[0_0_18px_rgba(34,211,238,0.35)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-2"
+            >
+              {t(p.link.label)}
+              <span aria-hidden>↗</span>
+            </a>
+          ) : null}
         </div>
       </article>
     </TiltCard>
@@ -130,8 +141,8 @@ export function Projects() {
       <SectionHeading index="03" eyebrow={UI.sections.projects} title={UI.sections.projectsTitle} />
       <div className="grid gap-6 lg:grid-cols-2">
         {PROJECTS.map((p, i) => (
-          <Reveal key={p.slug} delay={(i % 2) * 0.08} className={i === 0 || i === 3 ? "lg:col-span-2" : undefined}>
-            <ProjectCard p={p} large={i === 0 || i === 3} />
+          <Reveal key={p.slug} delay={i === 0 ? 0 : ((i - 1) % 2) * 0.08} className={i === 0 ? "lg:col-span-2" : undefined}>
+            <ProjectCard p={p} large={i === 0} />
           </Reveal>
         ))}
         <Reveal className="lg:col-span-2">
