@@ -1,6 +1,6 @@
 "use client";
 
-import { Float, Html, Sparkles, Trail } from "@react-three/drei";
+import { Float, Html, Sparkles } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
 import { Suspense, useMemo, useRef } from "react";
@@ -27,22 +27,31 @@ const coreFragment = /* glsl */ `
   varying vec3 vNormal;
   varying vec3 vView;
   varying vec2 vUv;
-  float line(float v, float w) {
-    float d = abs(fract(v) - 0.5);
-    return smoothstep(0.5 - w, 0.5, d);
+  // Anti-aliased line: distance to the nearest integer in screen pixels.
+  float line(float v, float widthPx) {
+    float fw = max(fwidth(v), 1e-4);
+    float g = abs(fract(v - 0.5) - 0.5) / fw;
+    return 1.0 - smoothstep(0.0, widthPx, g);
   }
   void main() {
     float fres = pow(1.0 - max(dot(vNormal, vView), 0.0), 2.4);
     vec3 deep = vec3(0.02, 0.04, 0.11);
     vec3 blue = vec3(0.23, 0.51, 0.96);
     vec3 cyan = vec3(0.13, 0.83, 0.93);
-    float lon = line(vUv.x * 24.0 + uTime * 0.05, 0.035);
-    float lat = line(vUv.y * 14.0, 0.035);
-    float grid = max(lon, lat) * 0.55;
-    float band = smoothstep(0.46, 0.5, abs(fract(vUv.y - uTime * 0.06) - 0.5));
-    float noise = fract(sin(dot(floor(vUv * vec2(90.0, 45.0)), vec2(12.9898, 78.233))) * 43758.5453);
-    float city = step(0.985, noise) * (0.6 + 0.4 * sin(uTime * 2.0 + noise * 40.0));
-    vec3 col = deep + blue * grid * 0.7 + cyan * band * 0.6 + vec3(0.98, 0.75, 0.14) * city * 0.9;
+    // Fade detail toward the poles where UV cells squash and lines converge.
+    float poleFade = smoothstep(0.12, 0.4, sin(vUv.y * 3.14159265));
+    float lon = line(vUv.x * 24.0, 1.4) * poleFade;
+    float lat = line(vUv.y * 14.0, 1.4);
+    float grid = max(lon, lat) * 0.5;
+    float band = smoothstep(0.38, 0.5, abs(fract(vUv.y - uTime * 0.06) - 0.5));
+    // City lights: small soft round dots inside sparse cells.
+    vec2 cell = vUv * vec2(90.0, 45.0);
+    vec2 id = floor(cell);
+    float noise = fract(sin(dot(id, vec2(12.9898, 78.233))) * 43758.5453);
+    float dist = length(fract(cell) - 0.5);
+    float dotMask = 1.0 - smoothstep(0.1, 0.24, dist);
+    float city = step(0.985, noise) * dotMask * poleFade * (0.85 + 0.15 * sin(uTime * 0.6 + noise * 40.0));
+    vec3 col = deep + blue * grid * 0.6 + cyan * band * 0.3 + vec3(0.98, 0.75, 0.14) * city * 0.55;
     col += mix(blue, cyan, fres) * fres * 1.4;
     gl_FragColor = vec4(col, 1.0);
   }
@@ -92,7 +101,7 @@ function Planet({ animate }: { animate: boolean }) {
       </mesh>
       <mesh ref={shell}>
         <icosahedronGeometry args={[2.15, 1]} />
-        <meshBasicMaterial color="#22d3ee" wireframe transparent opacity={0.12} />
+        <meshBasicMaterial color="#22d3ee" wireframe transparent opacity={0.1} />
       </mesh>
     </group>
   );
@@ -125,19 +134,17 @@ function Orbit({ radius, tilt, speed, color, label, offset = 0, animate }: Orbit
         <torusGeometry args={[radius, 0.006, 8, 200]} />
         <meshBasicMaterial color={color} transparent opacity={0.45} />
       </mesh>
-      <Trail width={1.4} length={6} color={color} attenuation={(t) => t * t}>
-        <mesh ref={sat}>
-          <sphereGeometry args={[0.055, 16, 16]} />
-          <meshBasicMaterial color={color} toneMapped={false} />
-          {label ? (
-            <Html center distanceFactor={5} zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
-              <span className="whitespace-nowrap rounded-full border border-white/15 bg-black/60 px-2.5 py-1 font-mono text-[11px] tracking-wider text-ink backdrop-blur">
-                {label}
-              </span>
-            </Html>
-          ) : null}
-        </mesh>
-      </Trail>
+      <mesh ref={sat}>
+        <sphereGeometry args={[0.07, 16, 16]} />
+        <meshBasicMaterial color={color} toneMapped={false} />
+        {label ? (
+          <Html center distanceFactor={7} zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
+            <span className="whitespace-nowrap rounded-full border border-white/15 bg-black/60 px-2.5 py-1 font-mono text-[11px] tracking-wider text-ink backdrop-blur">
+              {label}
+            </span>
+          </Html>
+        ) : null}
+      </mesh>
     </group>
   );
 }
@@ -178,7 +185,7 @@ export default function PlanetScene() {
           <Sparkles count={120} scale={[9, 6, 6]} size={2.2} speed={animate ? 0.35 : 0} color="#93c5fd" opacity={0.7} />
         </Rig>
         <EffectComposer multisampling={4}>
-          <Bloom mipmapBlur intensity={0.9} luminanceThreshold={0.5} luminanceSmoothing={0.4} radius={0.75} />
+          <Bloom mipmapBlur intensity={0.9} luminanceThreshold={0.6} luminanceSmoothing={0.3} radius={0.75} />
           <Vignette offset={0.25} darkness={0.7} />
         </EffectComposer>
       </Suspense>
