@@ -1,0 +1,72 @@
+import { createElement, type ReactElement } from "react";
+import type { IconType } from "react-icons";
+import {
+  SiAngular,
+  SiChartdotjs,
+  SiClaude,
+  SiCloudflare,
+  SiDocker,
+  SiGithubactions,
+  SiGo,
+  SiJavascript,
+  SiLaravel,
+  SiLinux,
+  SiMariadb,
+  SiMui,
+  SiMysql,
+  SiNestjs,
+  SiNextdotjs,
+  SiNginx,
+  SiNodedotjs,
+  SiOpencv,
+  SiPhp,
+  SiPostgresql,
+  SiPrimeng,
+  SiPwa,
+  SiPython,
+  SiQdrant,
+  SiReact,
+  SiTailwindcss,
+  SiTypescript,
+  SiVitest,
+} from "react-icons/si";
+
+const ICONS: Record<string, IconType> = {
+  TypeScript: SiTypescript,
+  JavaScript: SiJavascript,
+  PHP: SiPhp,
+  Python: SiPython,
+  Go: SiGo,
+  React: SiReact,
+  "Next.js": SiNextdotjs,
+  Angular: SiAngular,
+  "Angular 17": SiAngular,
+  "Tailwind CSS": SiTailwindcss,
+  PrimeNG: SiPrimeng,
+  MUI: SiMui,
+  Laravel: SiLaravel,
+  "Node.js": SiNodedotjs,
+  NestJS: SiNestjs,
+  MySQL: SiMysql,
+  MariaDB: SiMariadb,
+  PostgreSQL: SiPostgresql,
+  "Claude / OpenAI": SiClaude,
+  "Claude / OpenAI APIs": SiClaude,
+  "Claude Code · Codex": SiClaude,
+  Qdrant: SiQdrant,
+  Docker: SiDocker,
+  Nginx: SiNginx,
+  Linux: SiLinux,
+  "GitHub Actions": SiGithubactions,
+  Cloudflare: SiCloudflare,
+  Vitest: SiVitest,
+  "Chart.js": SiChartdotjs,
+  PWA: SiPwa,
+  OpenCV: SiOpencv,
+};
+
+/** Returns the brand icon element for a technology name, or null when there is none. */
+export function techIcon(name: string, className?: string): ReactElement | null {
+  const Icon = ICONS[name];
+  return Icon ? createElement(Icon, { className, "aria-hidden": true }) : null;
+}
