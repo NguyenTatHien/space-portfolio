@@ -15,14 +15,19 @@ services:
       caddy_0.reverse_proxy: "{{upstreams 3000}}"
       caddy_1: portfolio.hiennguyen.io.vn
       caddy_1.redir: "https://hiennguyen.io.vn{uri} permanent"
+      com.centurylinklabs.watchtower.scope: portfolio
 
   # Cứ 60 giây hỏi GHCR xem có ảnh mới của `portfolio` không, có thì kéo về và chạy lại.
   # Chỉ theo dõi đúng container `portfolio`, không đụng tới Javis.
+  # BẮT BUỘC có scope riêng: Watchtower không scope sẽ coi mọi Watchtower không scope khác là "thừa"
+  # và xoá luôn lúc khởi động. Thiếu scope thì nó và `javis-watchtower` (nút Cập nhật của Javis) xoá lẫn nhau.
   watchtower-portfolio:
     image: ghcr.io/nicholas-fedor/watchtower:1
     container_name: watchtower-portfolio
     restart: unless-stopped
-    command: --interval 60 --cleanup portfolio
+    command: --interval 60 --cleanup --scope portfolio portfolio
+    labels:
+      com.centurylinklabs.watchtower.scope: portfolio
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
